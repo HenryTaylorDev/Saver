@@ -1,25 +1,33 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import "./App.css";
+import { ExpenseProvider } from "./contexts/ExpenseContext";
+import { IncomeProvider } from "./contexts/IncomeContext";
+import { GoalProvider } from "./contexts/GoalContext";
+import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
+import { Dashboard } from "./pages/Dashboard";
+import { Expenses } from "./pages/Expenses";
+import { Income } from "./pages/Income";
+import { Goals } from "./pages/Goals";
+import { NavBar } from "./components/NavBar";
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <>
+      <ExpenseProvider>
+        <IncomeProvider>
+          <GoalProvider>
+            <Router>
+              <NavBar />
+              <Routes>
+                <Route path="/" element={<Dashboard />} />
+                <Route path="/expenses" element={<Expenses />} />
+                <Route path="/income" element={<Income />} />
+                <Route path="/goals" element={<Goals />} />
+              </Routes>
+            </Router>
+          </GoalProvider>
+        </IncomeProvider>
+      </ExpenseProvider>
+    </>
   );
 }
 
