@@ -10,6 +10,8 @@ import AddIncomeForm from "../components/AddIncomeForm";
 import AddExpenseForm from "../components/AddExpenseForm";
 import { ExpensesPieChart } from "../components/ExpensesPieChart";
 import { FormModal } from "../components/FormModal";
+import { Expenses } from "../components/Expenses";
+import { Actions } from "../components/Actions";
 
 export const Dashboard = () => {
   const { state: incomeState } = useContext(IncomeContext);
@@ -49,37 +51,23 @@ export const Dashboard = () => {
 
   return (
     <div style={{ padding: "20px" }}>
-      <Box mb={4}>
+      <Box mb={4} display="flex" sx={{ justifyContent: "space-between" }}>
         <Typography variant="h4" gutterBottom>
           Saver Dashboard
         </Typography>
-      </Box>
-
-      <Box gap={2}>
         <MonthSelector
           onChange={(month, year) => {
             setSelectedMonth(month);
             setSelectedYear(year);
           }}
         />
+      </Box>
 
-        <Box display="flex" gap={2} my={2}>
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={() => handleOpenModal("income")}
-          >
-            Add Income
-          </Button>
-
-          <Button
-            variant="contained"
-            color="secondary"
-            onClick={() => handleOpenModal("expense")}
-          >
-            Add Expense
-          </Button>
-        </Box>
+      <Box gap={2}>
+        <Actions
+          onAddIncome={() => handleOpenModal("income")}
+          onAddExpense={() => handleOpenModal("expense")}
+        />
       </Box>
 
       {/* Total Income */}
@@ -125,7 +113,18 @@ export const Dashboard = () => {
           </CardContent>
         </Card>
       </Box>
-      <ExpensesPieChart expenses={expenseState.expenses} />
+      <Box display="flex" gap={2}>
+        <ExpensesPieChart
+          expenses={expenseState.expenses}
+          selectedMonth={selectedMonth}
+          selectedYear={selectedYear}
+        />
+        <Expenses
+          expenses={expenseState.expenses}
+          selectedMonth={selectedMonth}
+          selectedYear={selectedYear}
+        />
+      </Box>
       <FormModal
         open={openModal}
         onClose={handleCloseModal}

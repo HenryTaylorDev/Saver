@@ -12,8 +12,12 @@ const MonthSelector = ({
 }: {
   onChange: (month: number, year: number) => void;
 }) => {
-  const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth());
-  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
+  const currentDate = new Date();
+  const currentMonth = currentDate.getMonth();
+  const currentYear = currentDate.getFullYear();
+
+  const [selectedMonth, setSelectedMonth] = useState(currentMonth);
+  const [selectedYear, setSelectedYear] = useState(currentYear);
 
   const handleMonthChange = (event: SelectChangeEvent<number>) => {
     const month = event.target.value as number;
@@ -24,12 +28,18 @@ const MonthSelector = ({
   const handleYearChange = (event: SelectChangeEvent<number>) => {
     const year = event.target.value as number;
     setSelectedYear(year);
-    onChange(selectedMonth, year);
+    // Adjust month options when year changes
+    const adjustedMonth =
+      year === currentYear && selectedMonth < currentMonth
+        ? currentMonth
+        : selectedMonth;
+    setSelectedMonth(adjustedMonth);
+    onChange(adjustedMonth, year);
   };
 
   return (
     <div style={{ display: "flex", gap: "16px", marginBottom: "20px" }}>
-      <FormControl>
+      <FormControl size="small">
         <InputLabel id="month-input">Month</InputLabel>
         <Select
           labelId="month-input"
@@ -37,14 +47,21 @@ const MonthSelector = ({
           value={selectedMonth}
           onChange={handleMonthChange}
         >
-          {Array.from({ length: 12 }, (_, i) => (
-            <MenuItem key={i} value={i}>
-              {new Date(0, i).toLocaleString("default", { month: "long" })}
-            </MenuItem>
-          ))}
+          {Array.from({ length: 12 }, (_, i) => i)
+            .filter((month) => {
+              // Allow only current or future months in the current year
+              return selectedYear > currentYear || month >= currentMonth;
+            })
+            .map((month) => (
+              <MenuItem key={month} value={month}>
+                {new Date(0, month).toLocaleString("default", {
+                  month: "long",
+                })}
+              </MenuItem>
+            ))}
         </Select>
       </FormControl>
-      <FormControl>
+      <FormControl size="small">
         <InputLabel id="year-input">Year</InputLabel>
         <Select
           labelId="year-input"
@@ -53,8 +70,8 @@ const MonthSelector = ({
           onChange={handleYearChange}
         >
           {Array.from({ length: 5 }, (_, i) => (
-            <MenuItem key={i} value={new Date().getFullYear() - i}>
-              {new Date().getFullYear() - i}
+            <MenuItem key={i} value={currentYear + i}>
+              {currentYear + i}
             </MenuItem>
           ))}
         </Select>

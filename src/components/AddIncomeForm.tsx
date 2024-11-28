@@ -6,6 +6,8 @@ import {
   Select,
   InputLabel,
   FormControl,
+  Box,
+  InputAdornment,
 } from "@mui/material";
 import IncomeContext from "../contexts/IncomeContext";
 import { Income } from "../models/Income";
@@ -54,48 +56,60 @@ const AddIncomeForm = ({ onClose }: AddIncomeFormProps) => {
   };
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        gap: "16px",
-        maxWidth: "400px",
-      }}
-    >
-      <TextField
-        label="Income Source"
-        variant="outlined"
-        value={source}
-        onChange={(e) => setSource(e.target.value)}
-        required
-      />
-      <TextField
-        label="Amount"
-        type="number"
-        variant="outlined"
-        value={amount}
-        onChange={(e) => setAmount(Number(e.target.value))}
-        required
-      />
-      <FormControl fullWidth>
-        <InputLabel id="frequency-label">Frequency</InputLabel>
-        <Select
-          labelId="frequency-label"
-          value={frequency}
-          onChange={(e) => setFrequency(e.target.value as typeof frequency)}
-        >
-          <MenuItem value="one-off">One-off</MenuItem>
-          <MenuItem value="weekly">Weekly</MenuItem>
-          <MenuItem value="monthly">Monthly</MenuItem>
-          <MenuItem value="quarterly">Quarterly</MenuItem>
-          <MenuItem value="annually">Annually</MenuItem>
-        </Select>
-      </FormControl>
-      <Button type="submit" variant="contained" color="primary">
-        Add Income
-      </Button>
-    </form>
+    <Box py={2}>
+      <form
+        onSubmit={handleSubmit}
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          gap: "16px",
+          maxWidth: "400px",
+        }}
+      >
+        <TextField
+          label="Income Source"
+          variant="outlined"
+          value={source}
+          onChange={(e) => setSource(e.target.value)}
+          required
+        />
+        <TextField
+          label="Amount"
+          type="number"
+          slotProps={{
+            input: {
+              startAdornment: (
+                <InputAdornment position="start">£</InputAdornment>
+              ),
+            },
+          }}
+          variant="outlined"
+          value={amount}
+          onChange={(e) => setAmount(Number(e.target.value))}
+          required
+        />
+        <FormControl fullWidth>
+          <InputLabel id="frequency-label">Frequency</InputLabel>
+          <Select
+            labelId="frequency-label"
+            label="Frequency"
+            value={frequency}
+            onChange={(e) => setFrequency(e.target.value as typeof frequency)}
+          >
+            {Object.values(Frequency).map((freq) => (
+              <MenuItem key={freq} value={freq}>
+                {freq.charAt(0).toUpperCase() + freq.slice(1)}{" "}
+                {/* Capitalize */}
+              </MenuItem>
+            ))}
+            =
+          </Select>
+        </FormControl>
+        <Button type="submit" variant="contained" color="primary">
+          Add Income
+        </Button>
+      </form>
+    </Box>
   );
 };
 export default AddIncomeForm;

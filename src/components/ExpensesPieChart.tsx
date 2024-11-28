@@ -5,15 +5,33 @@ import { Expense } from "../models/Expense";
 
 interface ExpensesPieChartProps {
   expenses: Expense[];
+  selectedMonth: number;
+  selectedYear: number;
 }
 
-export const ExpensesPieChart = ({ expenses }: ExpensesPieChartProps) => {
+export const ExpensesPieChart = ({
+  expenses,
+  selectedMonth,
+  selectedYear,
+}: ExpensesPieChartProps) => {
+  // Transform expenses for the pie chart
   const groupedExpenses = expenses.reduce((acc, expense) => {
-    acc[expense.category] = (acc[expense.category] || 0) + expense.amount;
+    const proratedAmount =
+      expense.frequency === "quarterly"
+        ? expense.amount / 3
+        : expense.frequency === "monthly"
+        ? expense.amount
+        : expense.frequency === "one-off" &&
+          new Date(expense.date).getMonth() === selectedMonth &&
+          new Date(expense.date).getFullYear() === selectedYear
+        ? expense.amount
+        : 0;
+
+    acc[expense.category] = (acc[expense.category] || 0) + proratedAmount;
     return acc;
   }, {} as Record<string, number>);
 
-  // Prepare data for the Pie Chart
+  // Format data for the PieChart
   const data = Object.entries(groupedExpenses).map(([category, total]) => ({
     id: category,
     value: total,
@@ -35,9 +53,6 @@ export const ExpensesPieChart = ({ expenses }: ExpensesPieChartProps) => {
           slotProps={{
             legend: {
               hidden: true,
-            },
-            axisLabel: {
-              display: "none",
             },
           }}
           width={400}
