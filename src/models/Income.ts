@@ -1,7 +1,9 @@
+import { Frequency } from "./Frequency";
+
 export interface Income {
   id: string;
   source: string;
   amount: number;
-  frequency: "one-off" | "weekly" | "monthly" | "quarterly" | "annually";
+  frequency: Frequency;
   date: string;
 }

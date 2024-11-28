@@ -9,19 +9,23 @@ import {
 } from "@mui/material";
 import ExpenseContext from "../contexts/ExpenseContext";
 import { Expense } from "../models/Expense";
+import { ExpenseCategory } from "../models/ExpenseCategory";
+import { Frequency } from "../models/Frequency";
 
-export const AddExpenseForm = () => {
+interface AddExpenseFormProps {
+  onClose: () => void; // Prop to close the modal
+}
+
+const AddExpenseForm = ({ onClose }: AddExpenseFormProps) => {
   const { dispatch } = useContext(ExpenseContext);
 
   // Local form state
   const [name, setName] = useState<string>("");
   const [amount, setAmount] = useState<number | "">("");
-  const [category, setCategory] = useState<
-    "Leisure" | "Entertainment" | "Rent" | "Food" | "Utilities" | "Other"
-  >("Other");
-  const [frequency, setFrequency] = useState<
-    "one-off" | "weekly" | "monthly" | "quarterly" | "annually"
-  >("monthly");
+  const [category, setCategory] = useState<ExpenseCategory>(
+    ExpenseCategory.Other
+  );
+  const [frequency, setFrequency] = useState<Frequency>(Frequency.Monthly);
   const [date, setDate] = useState<string>(
     new Date().toISOString().split("T")[0]
   );
@@ -51,9 +55,10 @@ export const AddExpenseForm = () => {
     // Reset form fields
     setName("");
     setAmount("");
-    setCategory("Other");
-    setFrequency("monthly");
+    setCategory(ExpenseCategory.Other);
+    setFrequency(Frequency.Monthly);
     setDate(new Date().toISOString().split("T")[0]);
+    onClose();
   };
 
   return (
@@ -85,39 +90,30 @@ export const AddExpenseForm = () => {
         <InputLabel id="category-label">Category</InputLabel>
         <Select
           labelId="category-label"
+          label="Category"
           value={category}
-          onChange={(e) =>
-            setCategory(
-              e.target.value as
-                | "Leisure"
-                | "Entertainment"
-                | "Rent"
-                | "Food"
-                | "Utilities"
-                | "Other"
-            )
-          }
+          onChange={(e) => setCategory(e.target.value as ExpenseCategory)}
         >
-          <MenuItem value="Rent">Rent</MenuItem>
-          <MenuItem value="Food">Food</MenuItem>
-          <MenuItem value="Utilities">Utilities</MenuItem>
-          <MenuItem value="Entertainment">Entertainment</MenuItem>
-          <MenuItem value="Leisure">Leisure</MenuItem>
-          <MenuItem value="Other">Other</MenuItem>
+          {Object.values(ExpenseCategory).map((cat) => (
+            <MenuItem key={cat} value={cat}>
+              {cat}
+            </MenuItem>
+          ))}
         </Select>
       </FormControl>
       <FormControl fullWidth>
         <InputLabel id="frequency-label">Frequency</InputLabel>
         <Select
           labelId="frequency-label"
+          label="Frequency"
           value={frequency}
-          onChange={(e) => setFrequency(e.target.value as typeof frequency)}
+          onChange={(e) => setFrequency(e.target.value as Frequency)}
         >
-          <MenuItem value="one-off">One-off</MenuItem>
-          <MenuItem value="weekly">Weekly</MenuItem>
-          <MenuItem value="monthly">Monthly</MenuItem>
-          <MenuItem value="quarterly">Quarterly</MenuItem>
-          <MenuItem value="annually">Annually</MenuItem>
+          {Object.values(Frequency).map((freq) => (
+            <MenuItem key={freq} value={freq}>
+              {freq.charAt(0).toUpperCase() + freq.slice(1)} {/* Capitalize */}
+            </MenuItem>
+          ))}
         </Select>
       </FormControl>
       <TextField
@@ -127,7 +123,6 @@ export const AddExpenseForm = () => {
         value={date}
         onChange={(e) => setDate(e.target.value)}
         required
-        InputLabelProps={{ shrink: true }}
       />
       <Button type="submit" variant="contained" color="primary">
         Add Expense
@@ -135,3 +130,5 @@ export const AddExpenseForm = () => {
     </form>
   );
 };
+
+export default AddExpenseForm;

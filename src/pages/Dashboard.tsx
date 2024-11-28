@@ -1,148 +1,142 @@
-import React, { useContext, useState } from "react";
+import { useContext, useState } from "react";
+import { Card, CardContent, Typography, Box, Button } from "@mui/material";
+import { calculateMonthlyExpenses } from "../utils/calculateMonthlyExpenses";
+import { calculateNetIncome } from "../utils/calculateNetIncome";
+import { calculateIncomeForMonth } from "../utils/calculateMonthlyTotals";
 import IncomeContext from "../contexts/IncomeContext";
-import MonthSelector from "../components/MonthSelector";
-import {
-  Card,
-  CardContent,
-  Typography,
-  List,
-  ListItem,
-  ListItemText,
-} from "@mui/material";
 import ExpenseContext from "../contexts/ExpenseContext";
+import MonthSelector from "../components/MonthSelector";
+import AddIncomeForm from "../components/AddIncomeForm";
+import AddExpenseForm from "../components/AddExpenseForm";
+import { ExpensesPieChart } from "../components/ExpensesPieChart";
+import { FormModal } from "../components/FormModal";
 
 export const Dashboard = () => {
   const { state: incomeState } = useContext(IncomeContext);
   const { state: expenseState } = useContext(ExpenseContext);
 
-  // State for selected month and year
   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth());
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
+  const [openModal, setOpenModal] = useState(false);
+  const [modalType, setModalType] = useState<"income" | "expense" | null>(null);
 
-  // Calculate total income
-  const calculateIncomeForMonth = (month: number, year: number): number => {
-    return incomeState.incomes.reduce((total, income) => {
-      const incomeDate = new Date(income.date);
-
-      // Include one-off incomes only for the selected month
-      if (income.frequency === "one-off") {
-        if (
-          incomeDate.getMonth() === month &&
-          incomeDate.getFullYear() === year
-        ) {
-          return total + income.amount;
-        }
-        return total;
-      }
-
-      // Include recurring incomes (e.g., monthly, weekly) for all months
-      if (income.frequency === "monthly" || income.frequency === "weekly") {
-        return total + income.amount;
-      }
-
-      return total; // Other frequencies can be handled as needed
-    }, 0);
+  const handleOpenModal = (type: "income" | "expense") => {
+    setModalType(type);
+    setOpenModal(true);
   };
 
-  const calculateExpenseForMonth = (month: number, year: number): number => {
-    return expenseState.expenses.reduce((total, expense) => {
-      const expenseDate = new Date(expense.date);
-
-      // Include one-off incomes only for the selected month
-      if (expense.frequency === "one-off") {
-        if (
-          expenseDate.getMonth() === month &&
-          expenseDate.getFullYear() === year
-        ) {
-          return total + expense.amount;
-        }
-        return total;
-      }
-
-      // Include recurring incomes (e.g., monthly, weekly) for all months
-      if (expense.frequency === "monthly" || expense.frequency === "weekly") {
-        return total + expense.amount;
-      }
-
-      return total; // Other frequencies can be handled as needed
-    }, 0);
+  const handleCloseModal = () => {
+    setModalType(null);
+    setOpenModal(false);
   };
 
-  const totalIncome = calculateIncomeForMonth(selectedMonth, selectedYear);
-  const totalExpense = calculateExpenseForMonth(selectedMonth, selectedYear);
+  const totalIncome = calculateIncomeForMonth(
+    incomeState.incomes,
+    selectedMonth,
+    selectedYear
+  );
+
+  const totalMonthlyExpenses = calculateMonthlyExpenses(
+    expenseState.expenses,
+    selectedMonth,
+    selectedYear
+  );
+
+  const incomes = incomeState.incomes.map((income) => income.amount);
+  const expenses = expenseState.expenses.map((expense) => expense.amount);
+
+  const netIncome = calculateNetIncome(incomes, expenses);
 
   return (
     <div style={{ padding: "20px" }}>
-      <Typography variant="h4" gutterBottom>
-        Dashboard
-      </Typography>
+      <Box mb={4}>
+        <Typography variant="h4" gutterBottom>
+          Saver Dashboard
+        </Typography>
+      </Box>
 
-      {/* Month Selector */}
-      <MonthSelector
-        onChange={(month, year) => {
-          setSelectedMonth(month);
-          setSelectedYear(year);
-        }}
-      />
+      <Box gap={2}>
+        <MonthSelector
+          onChange={(month, year) => {
+            setSelectedMonth(month);
+            setSelectedYear(year);
+          }}
+        />
+
+        <Box display="flex" gap={2} my={2}>
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={() => handleOpenModal("income")}
+          >
+            Add Income
+          </Button>
+
+          <Button
+            variant="contained"
+            color="secondary"
+            onClick={() => handleOpenModal("expense")}
+          >
+            Add Expense
+          </Button>
+        </Box>
+      </Box>
 
       {/* Total Income */}
-      <Card style={{ marginBottom: "20px" }}>
-        <CardContent>
-          <Typography variant="h5">
-            Total Income: £{totalIncome.toFixed(2)}
-          </Typography>
-        </CardContent>
-      </Card>
+      <Box display="flex" gap={2}>
+        <Card style={{ marginBottom: "20px", flexGrow: 1 }}>
+          <CardContent>
+            <Typography variant="h5" fontWeight={200}>
+              Total Income:
+            </Typography>
+            <Typography variant="h5" fontWeight={600}>
+              £{totalIncome.toFixed(2)}
+            </Typography>
+          </CardContent>
+        </Card>
 
-      {/* Total Expense */}
-      <Card style={{ marginBottom: "20px" }}>
-        <CardContent>
-          <Typography variant="h5">
-            Total Expenses: £{totalExpense.toFixed(2)}
-          </Typography>
-        </CardContent>
-      </Card>
+        {/* Total Expense */}
+        <Card style={{ marginBottom: "20px", flexGrow: 1 }}>
+          <CardContent>
+            <Typography variant="h5" fontWeight={200}>
+              Total Expenses:
+            </Typography>
+            <Typography variant="h5" fontWeight={600}>
+              £{totalMonthlyExpenses.toFixed(2)}
+            </Typography>
+          </CardContent>
+        </Card>
 
-      {/* Income List */}
-      <Card>
-        <CardContent>
-          <Typography variant="h5" gutterBottom>
-            Income for{" "}
-            {new Date(selectedYear, selectedMonth).toLocaleString("default", {
-              month: "long",
-            })}{" "}
-            {selectedYear}
-          </Typography>
-          <List>
-            {incomeState.incomes
-              .filter((income) => {
-                const incomeDate = new Date(income.date);
-
-                // Show one-off incomes only for the selected month
-                if (income.frequency === "one-off") {
-                  return (
-                    incomeDate.getMonth() === selectedMonth &&
-                    incomeDate.getFullYear() === selectedYear
-                  );
-                }
-
-                // Show recurring incomes in all months
-                return (
-                  income.frequency === "monthly" ||
-                  income.frequency === "weekly"
-                );
-              })
-              .map((income) => (
-                <ListItem key={income.id}>
-                  <ListItemText
-                    primary={`${income.source} - £${income.amount}`}
-                    secondary={`Frequency: ${income.frequency}`}
-                  />
-                </ListItem>
-              ))}
-          </List>
-        </CardContent>
-      </Card>
+        {/* Net Income */}
+        <Card style={{ marginBottom: "20px", flexGrow: 1 }}>
+          <CardContent>
+            <Typography variant="h5" fontWeight={200}>
+              After Expenses:
+            </Typography>
+            <Typography
+              variant="h5"
+              fontWeight={600}
+              style={{
+                color: netIncome < 0 ? "red" : "black", // Conditional color
+              }}
+            >
+              £{netIncome.toFixed(2)}
+            </Typography>
+          </CardContent>
+        </Card>
+      </Box>
+      <ExpensesPieChart expenses={expenseState.expenses} />
+      <FormModal
+        open={openModal}
+        onClose={handleCloseModal}
+        title={modalType === "income" ? "Add Income" : "Add Expense"}
+      >
+        {modalType === "income" ? (
+          <AddIncomeForm onClose={handleCloseModal} />
+        ) : (
+          <AddExpenseForm onClose={handleCloseModal} />
+        )}
+      </FormModal>
     </div>
   );
 };

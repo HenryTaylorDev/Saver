@@ -1,14 +1,11 @@
+import { ExpenseCategory } from "./ExpenseCategory";
+import { Frequency } from "./Frequency";
+
 export interface Expense {
   id: string;
   name: string;
   amount: number;
-  category:
-    | "Leisure"
-    | "Entertainment"
-    | "Rent"
-    | "Food"
-    | "Utilities"
-    | "Other";
-  frequency: "one-off" | "weekly" | "monthly" | "quarterly" | "annually";
+  category: ExpenseCategory;
+  frequency: Frequency;
   date: string;
 }

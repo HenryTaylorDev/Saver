@@ -9,16 +9,19 @@ import {
 } from "@mui/material";
 import IncomeContext from "../contexts/IncomeContext";
 import { Income } from "../models/Income";
+import { Frequency } from "../models/Frequency";
 
-const AddIncomeForm: React.FC = () => {
+interface AddIncomeFormProps {
+  onClose: () => void;
+}
+
+const AddIncomeForm = ({ onClose }: AddIncomeFormProps) => {
   const { dispatch } = useContext(IncomeContext);
 
   // Local form state
   const [source, setSource] = useState<string>("");
   const [amount, setAmount] = useState<number | "">("");
-  const [frequency, setFrequency] = useState<
-    "one-off" | "weekly" | "monthly" | "quarterly" | "annually"
-  >("monthly");
+  const [frequency, setFrequency] = useState<Frequency>(Frequency.Monthly);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -46,7 +49,8 @@ const AddIncomeForm: React.FC = () => {
     // Reset form fields
     setSource("");
     setAmount("");
-    setFrequency("monthly");
+    setFrequency(Frequency.Monthly);
+    onClose();
   };
 
   return (
@@ -94,5 +98,4 @@ const AddIncomeForm: React.FC = () => {
     </form>
   );
 };
-
 export default AddIncomeForm;

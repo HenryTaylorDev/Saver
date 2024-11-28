@@ -30,8 +30,13 @@ const MonthSelector = ({
   return (
     <div style={{ display: "flex", gap: "16px", marginBottom: "20px" }}>
       <FormControl>
-        <InputLabel>Month</InputLabel>
-        <Select value={selectedMonth} onChange={handleMonthChange}>
+        <InputLabel id="month-input">Month</InputLabel>
+        <Select
+          labelId="month-input"
+          label="Month"
+          value={selectedMonth}
+          onChange={handleMonthChange}
+        >
           {Array.from({ length: 12 }, (_, i) => (
             <MenuItem key={i} value={i}>
               {new Date(0, i).toLocaleString("default", { month: "long" })}
@@ -40,8 +45,13 @@ const MonthSelector = ({
         </Select>
       </FormControl>
       <FormControl>
-        <InputLabel>Year</InputLabel>
-        <Select value={selectedYear} onChange={handleYearChange}>
+        <InputLabel id="year-input">Year</InputLabel>
+        <Select
+          labelId="year-input"
+          label="Year"
+          value={selectedYear}
+          onChange={handleYearChange}
+        >
           {Array.from({ length: 5 }, (_, i) => (
             <MenuItem key={i} value={new Date().getFullYear() - i}>
               {new Date().getFullYear() - i}
